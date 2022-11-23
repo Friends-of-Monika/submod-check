@@ -113,7 +113,7 @@ runs:
         else
           git checkout "${{ inputs.mas-version }}"
         fi
-        cp -Rf Monika\ After\ Story/* mas/
+        cp -Rf Monika\ After\ Story/* ../mas/
 
     - name: Install submods
       shell: bash

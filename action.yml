@@ -1,26 +1,124 @@
-name: "Submod Check"
-description: "Perform a code check and headless MAS run on repository"
+name: Check MAS code with submods installed
+description: >-
+  Runs MAS, compiling and running init blocks in the submods passed to this
+  action in parameters.
 
 inputs:
-  submod-path:
-    description: >
-      Path to directory containing submod script files. If not provided, action
-      will detect its location automatically (might be inaccurate.)
+  paths:
+    description: List of paths (one per line) to add to MAS install to test.
+    required: true
+
+  mas-version:
+    description: >-
+      Git tag of MAS release to be used during the check. Value of 'latest' can
+      be passed, in this case action will try to retrieve the latest MAS
+      release. By default, uses 'latest'.
+    default: latest
+
+  renpy-version:
+    description: >-
+      Version of Ren'Py SDK to be used during the check. Value of 'nightly' can
+      be passed, in this case action will try to retrieve the latest nightly
+      Ren'Py build. By default, uses 6.99.12.4.
+    default: 6.99.12.4
 
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: "Pull MDK"
-      shell: "bash"
+    - name: Fetch latest MAS version
+      id: mas-version-latest
+      if: inputs.mas-version == "latest"
+      shell: bash
       run: |
-        "${{ github.action_path }}/steps/install-mdk.sh" \
-          "${{ github.action_path }}"
+        tag="$(curl -sL https://api.github.com/repos/monika-after-story/monikamoddev/releases/latest | jq -r .tag_name)"
+        echo "tag=$tag" >> $GITHUB_OUTPUT
 
-    - name: "Run checks"
-      shell: "bash"
-      env:
-        SDL_AUDIODRIVER: dummy
+    - name: Fetch and construct Ren'Py URL for nightly releases
+      id: renpy-url-nightly
+      if: inputs.renpy-version == "nightly"
+      shell: bash
       run: |
-        "${{ github.action_path }}/steps/run-checks.sh" \
-          "${{ github.action_path }}" \
-          "${{ inputs.submod-path }}"
+        filename="$(curl -sL https://nightly.renpy.org/current-8/index.html | grep -P -m 1 -o '(?<=href=").*\.tar\.bz2(?=".*)')"
+        echo "url=https://nightly.renpy.org/current-8/$renpysdk" >> $GITHUB_OUTPUT
+
+    - name: Construct Ren'Py URL for stable releases
+      id: renpy-url-stable
+      if: inputs.renpy-version != "nightly"
+      shell: bash
+      run: |
+        echo "url=https://www.renpy.org/dl/${{ inputs.renpy-version }}/renpy-${{ inputs.renpy-version }}-sdk.tar.bz2" >> $GITHUB_OUTPUT
+
+    - name: Construct cache key
+      id: cache-key
+      shell: bash
+      run: |
+        if [ -z "${{ steps.renpy-url-nightly.outputs.url }}" ]; then
+          renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
+        fi
+
+        if [ "${{ inputs.mas-version }}" == latest ]; then
+          mas_tag="${{ steps.mas-version-latest.outputs.tag }}"
+        else
+          mas_tag="${{ inputs.mas-version }}"
+        fi
+
+        key="$(echo "$mas_tag-renpy-$renpy_url" | md5sum - | cut -f1 -d" ")"
+        echo "key=$key" >> $GITHUB_OUTPUT
+
+    - name: Pull cache
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ github.action_path }}/renpy
+          ${{ github.action_path }}/mas
+        key: ${{ steps.cache-key.outputs.key }}
+
+    - name: Install Ren'Py SDK
+      if: steps.cache.outputs.cache-hit != "true"
+      shell: bash
+      run: |
+        cd "${{ github.action_path }}"
+        curl -L -o "renpy.dat"
+        mkdir renpy
+        bsdtar -xf renpy.dat -C renpy
+        mv "$(find renpy -mindepth 1 -maxdepth 1)" renpy-subdir
+        mv renpy-subdir/* renpy
+        rm -rf renpy-subdir
+
+    - name: Install MAS
+      if: steps.cache.outputs.cache-hit != "true"
+      shell: bash
+      run: |
+        cd "${{ github.action_path }}"
+        wget https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
+        mkdir mas
+        unzip mas.zip -d mas
+        rm mas/game/scripts.rpa
+
+        git clone https://github.com/monika-after-story/monikamoddev
+        cd monikamoddev
+        if [ "${{ inputs.mas-version }}" == latest ]; then
+          git checkout "${{ steps.mas-version-latest.outputs.tag }}"
+        else
+          git checkout "${{ inputs.mas-version }}"
+        fi
+        cp -Rf Monika\ After\ Story/* mas/
+
+    - name: Install submods
+      shell: bash
+      run: |
+        d="${{ github.action_path }}"
+
+        cp -r "$d/mas" "$d/mas1"
+        mkdir "$d/mas1/submods"
+
+        while IFS= read -r path; do
+          cp -r "$path" "$d/mas1/submods"
+        done <<< "${{ inputs.paths }}"
+
+    - name: Run checks
+      shell: bash
+      run: |
+        d="${{ github.action_path }}"
+        "$d/renpy/renpy.sh" "$d/mas" lint

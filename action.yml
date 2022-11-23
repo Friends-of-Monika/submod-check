@@ -29,7 +29,7 @@ runs:
       shell: bash
       run: |
         sudo apt update -y
-        sudo apt install -y bsdtar
+        sudo apt install -y libarchive-tools
 
     - name: Fetch latest MAS version
       id: mas-version-latest

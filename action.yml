@@ -28,6 +28,7 @@ runs:
     - name: Install bsdtar
       shell: bash
       run: |
+        sudo apt update -y
         sudo apt install -y bsdtar
 
     - name: Fetch latest MAS version

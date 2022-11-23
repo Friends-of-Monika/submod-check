@@ -25,6 +25,11 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Install bsdtar
+      shell: bash
+      run: |
+        apt install -y bsdtar
+
     - name: Fetch latest MAS version
       id: mas-version-latest
       if: inputs.mas-version == 'latest'

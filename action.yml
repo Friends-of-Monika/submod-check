@@ -27,7 +27,7 @@ runs:
   steps:
     - name: Fetch latest MAS version
       id: mas-version-latest
-      if: inputs.mas-version == "latest"
+      if: 'inputs.mas-version == "latest"'
       shell: bash
       run: |
         tag="$(curl -sL https://api.github.com/repos/monika-after-story/monikamoddev/releases/latest | jq -r .tag_name)"
@@ -35,7 +35,7 @@ runs:
 
     - name: Fetch and construct Ren'Py URL for nightly releases
       id: renpy-url-nightly
-      if: inputs.renpy-version == "nightly"
+      if: 'inputs.renpy-version == "nightly"'
       shell: bash
       run: |
         filename="$(curl -sL https://nightly.renpy.org/current-8/index.html | grep -P -m 1 -o '(?<=href=").*\.tar\.bz2(?=".*)')"
@@ -43,7 +43,7 @@ runs:
 
     - name: Construct Ren'Py URL for stable releases
       id: renpy-url-stable
-      if: inputs.renpy-version != "nightly"
+      if: 'inputs.renpy-version != "nightly"'
       shell: bash
       run: |
         echo "url=https://www.renpy.org/dl/${{ inputs.renpy-version }}/renpy-${{ inputs.renpy-version }}-sdk.tar.bz2" >> $GITHUB_OUTPUT
@@ -75,7 +75,7 @@ runs:
         key: ${{ steps.cache-key.outputs.key }}
 
     - name: Install Ren'Py SDK
-      if: steps.cache.outputs.cache-hit != "true"
+      if: 'steps.cache.outputs.cache-hit != "true"'
       shell: bash
       run: |
         cd "${{ github.action_path }}"
@@ -87,7 +87,7 @@ runs:
         rm -rf renpy-subdir
 
     - name: Install MAS
-      if: steps.cache.outputs.cache-hit != "true"
+      if: 'steps.cache.outputs.cache-hit != "true"'
       shell: bash
       run: |
         cd "${{ github.action_path }}"

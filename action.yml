@@ -52,14 +52,14 @@ runs:
       id: cache-key
       shell: bash
       run: |
-        if [ -z "${{ steps.renpy-url-nightly.outputs.url }}" ]; then
+        renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
+        if [ -z "$renpy_url" ]; then
           renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
         fi
 
-        if [ "${{ inputs.mas-version }}" == latest ]; then
+        mas_tag="${{ inputs.mas-version }}"
+        if [ "$mas_tag" == latest ]; then
           mas_tag="${{ steps.mas-version-latest.outputs.tag }}"
-        else
-          mas_tag="${{ inputs.mas-version }}"
         fi
 
         key="$(echo "$mas_tag-renpy-$renpy_url" | md5sum - | cut -f1 -d" ")"
@@ -79,7 +79,11 @@ runs:
       shell: bash
       run: |
         cd "${{ github.action_path }}"
-        curl -L -o "renpy.dat"
+        renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
+        if [ -z "$renpy_url" ]; then
+          renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
+        fi
+        curl -L "$renpy_url" -o "renpy.dat"
         mkdir renpy
         bsdtar -xf renpy.dat -C renpy
         mv "$(find renpy -mindepth 1 -maxdepth 1)" renpy-subdir

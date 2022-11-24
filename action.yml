@@ -134,4 +134,5 @@ runs:
       run: |
         cd "${{ github.action_path }}/renpy"
         ./renpy.sh ../mas1 lint >/dev/null 2>&1
-        cat ../mas1/errors.txt ../mas1/traceback.txt
+        cat ../mas1/errors.txt || true
+        cat ../mas1/traceback.txt || true

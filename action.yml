@@ -144,3 +144,7 @@ runs:
         if [ -f ../mas1/traceback.txt ]; then
           cat ../mas1/traceback.txt
         fi
+
+        if [ -f ../mas1/traceback.txt ] || [ -f ../mas1/errors.txt ]; then
+          exit 1
+        fi

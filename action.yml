@@ -78,7 +78,7 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       env:
-        DEBIAN_FRONTEND=noninteractive
+        DEBIAN_FRONTEND: noninteractive
       run: |
         sudo apt update -yq
         sudo apt install -yq libarchive-tools

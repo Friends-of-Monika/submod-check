@@ -111,9 +111,9 @@ runs:
         git clone --quiet --depth=1 https://github.com/monika-after-story/monikamoddev
         cd monikamoddev
         if [ "${{ inputs.mas-version }}" == latest ]; then
-          git checkout "${{ steps.mas-version-latest.outputs.tag }}"
+          git -c advice.detachedHead=false checkout "${{ steps.mas-version-latest.outputs.tag }}"
         else
-          git checkout "${{ inputs.mas-version }}"
+          git -c advice.detachedHead=falsecheckout "${{ inputs.mas-version }}"
         fi
         cp -Rf Monika\ After\ Story/* ../mas/
 

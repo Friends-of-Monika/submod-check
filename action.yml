@@ -104,7 +104,6 @@ runs:
         wget https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
         mkdir mas
         unzip mas.zip -d mas
-        rm mas/game/scripts.rpa
 
         git clone --depth=1 https://github.com/monika-after-story/monikamoddev
         cd monikamoddev

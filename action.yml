@@ -102,7 +102,7 @@ runs:
       shell: bash
       run: |
         cd "${{ github.action_path }}"
-        wget https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
+        curl -L -o mas.zip https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
         mkdir mas
         unzip mas.zip -d mas
 

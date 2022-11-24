@@ -124,7 +124,7 @@ runs:
         mkdir "$d/mas1/Submods"
 
         while IFS= read -r path; do
-          cp -r "$path" "$d/mas1/Submods"
+          cp -r "$path" "$d/mas1/game/Submods"
         done <<< "${{ inputs.paths }}"
 
     - name: Run checks

@@ -131,4 +131,4 @@ runs:
       shell: bash
       run: |
         cd "${{ github.action_path }}/renpy"
-        ./renpy/renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."
+        ./renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."

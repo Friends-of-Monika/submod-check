@@ -134,5 +134,11 @@ runs:
       run: |
         cd "${{ github.action_path }}/renpy"
         ./renpy.sh ../mas1 lint >/dev/null 2>&1 || true
-        cat ../mas1/errors.txt || true
-        cat ../mas1/traceback.txt || true
+
+        if [ -f ../mas1/errors.txt ]; then
+          cat ../mas1/errors.txt | sed -n 's/^File "game\/Submods\/\(.*\)", line \([[:digit:]]*\): \(.*\)/::error file=\1,line=\2::\3/p'
+        fi
+
+        if [ -f ../mas1/traceback.txt ]; then
+          cat ../mas1/traceback.txt
+        fi

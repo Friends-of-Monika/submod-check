@@ -1,0 +1,15 @@
+I'm sorry, but errors were detected in your script. Please correct the
+errors listed below, and try again.
+
+
+File "game/Submods/test.rpy", line 11: Line is followed by a block, despite not being a menu choice. Did you forget a colon at the end of the line?
+    "Choice 1"
+              ^
+
+File "game/Submods/test.rpy", line 11: Line is followed by a block, despite not being a menu choice. Did you forget a colon at the end of the line?
+    "Choice 1"
+              ^
+
+File "game/Submods/test.rpy", line 11: Line is followed by a block, despite not being a menu choice. Did you forget a colon at the end of the line?
+    "Choice 1"
+              ^

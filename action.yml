@@ -77,9 +77,11 @@ runs:
     - name: Install bsdtar
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
+      env:
+        DEBIAN_FRONTEND=noninteractive
       run: |
-        sudo apt update -y
-        sudo apt install -y libarchive-tools
+        sudo apt update -yq
+        sudo apt install -yq libarchive-tools
 
     - name: Install Ren'Py SDK
       if: steps.cache.outputs.cache-hit != 'true'

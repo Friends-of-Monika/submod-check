@@ -121,10 +121,10 @@ runs:
         d="${{ github.action_path }}"
 
         cp -r "$d/mas" "$d/mas1"
-        mkdir "$d/mas1/submods"
+        mkdir "$d/mas1/Submods"
 
         while IFS= read -r path; do
-          cp -r "$path" "$d/mas1/submods"
+          cp -r "$path" "$d/mas1/Submods"
         done <<< "${{ inputs.paths }}"
 
     - name: Run checks

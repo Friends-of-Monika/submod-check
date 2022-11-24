@@ -106,7 +106,7 @@ runs:
         unzip mas.zip -d mas
         rm mas/game/scripts.rpa
 
-        git clone https://github.com/monika-after-story/monikamoddev
+        git clone --depth=1 https://github.com/monika-after-story/monikamoddev
         cd monikamoddev
         if [ "${{ inputs.mas-version }}" == latest ]; then
           git checkout "${{ steps.mas-version-latest.outputs.tag }}"
@@ -130,5 +130,5 @@ runs:
     - name: Run checks
       shell: bash
       run: |
-        d="${{ github.action_path }}"
-        "$d/renpy/renpy.sh" "$d/mas" lint
+        cd "${{ github.action_path }}/renpy"
+        ./renpy/renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."

@@ -25,12 +25,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Install bsdtar
-      shell: bash
-      run: |
-        sudo apt update -y
-        sudo apt install -y libarchive-tools
-
     - name: Fetch latest MAS version
       id: mas-version-latest
       if: inputs.mas-version == 'latest'
@@ -80,6 +74,13 @@ runs:
           ${{ github.action_path }}/mas
         key: ${{ steps.cache-key.outputs.key }}
 
+    - name: Install bsdtar
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        sudo apt update -y
+        sudo apt install -y libarchive-tools
+
     - name: Install Ren'Py SDK
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
@@ -128,6 +129,8 @@ runs:
 
     - name: Run checks
       shell: bash
+      env:
+        SDL_AUDIODRIVER: dummy
       run: |
         cd "${{ github.action_path }}/renpy"
         ./renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."

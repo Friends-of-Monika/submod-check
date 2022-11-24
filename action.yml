@@ -133,6 +133,6 @@ runs:
         SDL_AUDIODRIVER: dummy
       run: |
         cd "${{ github.action_path }}/renpy"
-        ./renpy.sh ../mas1 lint >/dev/null 2>&1
+        ./renpy.sh ../mas1 lint >/dev/null 2>&1 || true
         cat ../mas1/errors.txt || true
         cat ../mas1/traceback.txt || true

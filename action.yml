@@ -90,7 +90,7 @@ runs:
         if [ -z "$renpy_url" ]; then
           renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
         fi
-        curl -L "$renpy_url" -o "renpy.dat"
+        curl -L -o "renpy.dat" "$renpy_url"
         mkdir renpy
         bsdtar -xf renpy.dat -C renpy
         mv "$(find renpy -mindepth 1 -maxdepth 1)" renpy-subdir
@@ -104,9 +104,9 @@ runs:
         cd "${{ github.action_path }}"
         curl -L -o mas.zip https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
         mkdir mas
-        unzip mas.zip -d mas
+        bsdtar -xf mas.zip -C mas
 
-        git clone --depth=1 https://github.com/monika-after-story/monikamoddev
+        git clone --quiet --depth=1 https://github.com/monika-after-story/monikamoddev
         cd monikamoddev
         if [ "${{ inputs.mas-version }}" == latest ]; then
           git checkout "${{ steps.mas-version-latest.outputs.tag }}"
@@ -136,7 +136,7 @@ runs:
         ./renpy.sh ../mas1 lint >/dev/null 2>&1 || true
 
         if [ -f ../mas1/errors.txt ]; then
-          cat ../mas1/errors.txt | sed -n 's/^File "game\/Submods\/\(.*\)", line \([[:digit:]]*\): \(.*\)/::error file=\1,line=\2::\3/p'
+          cat ../mas1/errors.txt
         fi
 
         if [ -f ../mas1/traceback.txt ]; then

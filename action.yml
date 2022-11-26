@@ -80,6 +80,11 @@ runs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        echo
+        echo "Installing BSDtar for unpacking Ren'Py and MAS packages. It will"
+        echo "not be used if cache is hit in next workflow runs."
+        echo
+
         sudo apt update -yq
         sudo apt install -yq libarchive-tools
 

@@ -77,8 +77,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |-
-          ${{ github.action_path }}/renpy
-          ${{ github.action_path }}/mas
+          renpy
+          mas
         key: ${{ steps.cache-key.outputs.key }}
 
     - name: Install BSDtar
@@ -94,7 +94,6 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        cd "${{ github.action_path }}"
         renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
         if [ -z "$renpy_url" ]; then
           renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
@@ -110,7 +109,6 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        cd "${{ github.action_path }}"
         curl -L -o mas.zip https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
         mkdir mas
         bsdtar -xf mas.zip -C mas
@@ -127,13 +125,11 @@ jobs:
     - name: Install submods
       shell: bash
       run: |
-        d="${{ github.action_path }}"
-
-        cp -r "$d/mas" "$d/mas1"
-        mkdir "$d/mas1/Submods"
+        cp -r mas" mas1
+        mkdir mas1/Submods
 
         while IFS= read -r path; do
-          cp -r "$path" "$d/mas1/game/Submods"
+          cp -r "$path" mas1/game/Submods
         done <<< "${{ inputs.paths }}"
 
     - name: Run checks
@@ -141,17 +137,16 @@ jobs:
       env:
         SDL_AUDIODRIVER: dummy
       run: |
-        cd "${{ github.action_path }}/renpy"
-        { ./renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."; } || true
+        { renpy/renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."; } || true
 
-        if [ -f ../mas1/errors.txt ]; then
-          cat ../mas1/errors.txt
+        if [ -f mas1/errors.txt ]; then
+          cat mas1/errors.txt
         fi
 
-        if [ -f ../mas1/traceback.txt ]; then
-          cat ../mas1/traceback.txt
+        if [ -f mas1/traceback.txt ]; then
+          cat mas1/traceback.txt
         fi
 
-        if [ -f ../mas1/traceback.txt ] || [ -f ../mas1/errors.txt ]; then
+        if [ -f mas1/traceback.txt ] || [ -f mas1/errors.txt ]; then
           exit 1
         fi

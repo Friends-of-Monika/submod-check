@@ -80,11 +80,6 @@ runs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        printf "\n\n%s\n" "**************************************************************"
-        printf "\n\n%s\n" "Installing BSDtar for unpacking Ren'Py and MAS packages. It will"
-        printf "\n\n%s\n" "not be used if cache is hit in next workflow runs."
-        printf "\n%s\n\n" "**************************************************************"
-
         sudo apt update -yq
         sudo apt install -yq libarchive-tools
 
@@ -92,11 +87,6 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        printf "\n\n%s\n" "**************************************************************"
-        printf "\n\n%s\n" "Installing Ren'Py SDK. It will be cached if this build succeedes,"
-        printf "\n\n%s\n" "next workflow runs will use cache and run faster."
-        printf "\n%s\n\n" "**************************************************************"
-
         cd "${{ github.action_path }}"
         renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
         if [ -z "$renpy_url" ]; then
@@ -113,11 +103,6 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        printf "\n\n%s\n" "**************************************************************"
-        printf "\n\n%s\n" "Installing MAS. It will be cached if this build succeedes,"
-        printf "\n\n%s\n" "next workflow runs will use cache and run faster."
-        printf "\n%s\n\n" "**************************************************************"
-
         cd "${{ github.action_path }}"
         curl -L -o mas.zip https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
         mkdir mas
@@ -149,11 +134,6 @@ runs:
       env:
         SDL_AUDIODRIVER: dummy
       run: |
-        printf "\n\n%s\n" "**************************************************************"
-        printf "%s\n" "Running Ren'Py lint and MAS init hooks. Pay attention to paths"
-        printf "%s\n" "in the warnings, not every warning is related to your submod."
-        printf "\n%s\n\n" "**************************************************************"
-
         cd "${{ github.action_path }}/renpy"
         ./renpy.sh ../mas1 lint || true
 

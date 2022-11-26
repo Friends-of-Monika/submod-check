@@ -29,6 +29,9 @@ jobs:
     name: Run checks
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Fetch latest MAS version
         id: mas-version-latest
         if: inputs.mas-version == 'latest'

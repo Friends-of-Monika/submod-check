@@ -29,129 +29,129 @@ jobs:
     name: Run checks
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Fetch latest MAS version
-        id: mas-version-latest
-        if: inputs.mas-version == 'latest'
-        shell: bash
-        run: |
-          tag="$(curl -sL https://api.github.com/repos/monika-after-story/monikamoddev/releases/latest | jq -r .tag_name)"
-          echo "tag=$tag" >> $GITHUB_OUTPUT
+    - name: Fetch latest MAS version
+      id: mas-version-latest
+      if: inputs.mas-version == 'latest'
+      shell: bash
+      run: |
+        tag="$(curl -sL https://api.github.com/repos/monika-after-story/monikamoddev/releases/latest | jq -r .tag_name)"
+        echo "tag=$tag" >> $GITHUB_OUTPUT
 
-      - name: Fetch and construct Ren'Py URL for nightly releases
-        id: renpy-url-nightly
-        if: inputs.renpy-version == 'nightly'
-        shell: bash
-        run: |
-          filename="$(curl -sL https://nightly.renpy.org/current-8/index.html | grep -P -m 1 -o '(?<=href=").*\.tar\.bz2(?=".*)')"
-          echo "url=https://nightly.renpy.org/current-8/$renpysdk" >> $GITHUB_OUTPUT
+    - name: Fetch and construct Ren'Py URL for nightly releases
+      id: renpy-url-nightly
+      if: inputs.renpy-version == 'nightly'
+      shell: bash
+      run: |
+        filename="$(curl -sL https://nightly.renpy.org/current-8/index.html | grep -P -m 1 -o '(?<=href=").*\.tar\.bz2(?=".*)')"
+        echo "url=https://nightly.renpy.org/current-8/$renpysdk" >> $GITHUB_OUTPUT
 
-      - name: Construct Ren'Py URL for stable releases
-        id: renpy-url-stable
-        if: inputs.renpy-version != 'nightly'
-        shell: bash
-        run: |
-          echo "url=https://www.renpy.org/dl/${{ inputs.renpy-version }}/renpy-${{ inputs.renpy-version }}-sdk.tar.bz2" >> $GITHUB_OUTPUT
+    - name: Construct Ren'Py URL for stable releases
+      id: renpy-url-stable
+      if: inputs.renpy-version != 'nightly'
+      shell: bash
+      run: |
+        echo "url=https://www.renpy.org/dl/${{ inputs.renpy-version }}/renpy-${{ inputs.renpy-version }}-sdk.tar.bz2" >> $GITHUB_OUTPUT
 
-      - name: Construct cache key
-        id: cache-key
-        shell: bash
-        run: |
-          renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
-          if [ -z "$renpy_url" ]; then
-            renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
-          fi
+    - name: Construct cache key
+      id: cache-key
+      shell: bash
+      run: |
+        renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
+        if [ -z "$renpy_url" ]; then
+          renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
+        fi
 
-          mas_tag="${{ inputs.mas-version }}"
-          if [ "$mas_tag" == latest ]; then
-            mas_tag="${{ steps.mas-version-latest.outputs.tag }}"
-          fi
+        mas_tag="${{ inputs.mas-version }}"
+        if [ "$mas_tag" == latest ]; then
+          mas_tag="${{ steps.mas-version-latest.outputs.tag }}"
+        fi
 
-          key="$(echo "$mas_tag-renpy-$renpy_url" | md5sum - | cut -f1 -d" ")"
-          echo "key=$key" >> $GITHUB_OUTPUT
+        key="$(echo "$mas_tag-renpy-$renpy_url" | md5sum - | cut -f1 -d" ")"
+        echo "key=$key" >> $GITHUB_OUTPUT
 
-      - name: Pull cache
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: |-
-            ${{ github.action_path }}/renpy
-            ${{ github.action_path }}/mas
-          key: ${{ steps.cache-key.outputs.key }}
+    - name: Pull cache
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: |-
+          ${{ github.action_path }}/renpy
+          ${{ github.action_path }}/mas
+        key: ${{ steps.cache-key.outputs.key }}
 
-      - name: Install BSDtar
-        if: steps.cache.outputs.cache-hit != 'true'
-        shell: bash
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo apt update -yq
-          sudo apt install -yq libarchive-tools
+    - name: Install BSDtar
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo apt update -yq
+        sudo apt install -yq libarchive-tools
 
-      - name: Install Ren'Py SDK
-        if: steps.cache.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          cd "${{ github.action_path }}"
-          renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
-          if [ -z "$renpy_url" ]; then
-            renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
-          fi
-          curl -L -o "renpy.dat" "$renpy_url"
-          mkdir renpy
-          bsdtar -xf renpy.dat -C renpy
-          mv "$(find renpy -mindepth 1 -maxdepth 1)" renpy-subdir
-          mv renpy-subdir/* renpy
-          rm -rf renpy-subdir
+    - name: Install Ren'Py SDK
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        cd "${{ github.action_path }}"
+        renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
+        if [ -z "$renpy_url" ]; then
+          renpy_url="${{ steps.renpy-url-stable.outputs.url }}"
+        fi
+        curl -L -o "renpy.dat" "$renpy_url"
+        mkdir renpy
+        bsdtar -xf renpy.dat -C renpy
+        mv "$(find renpy -mindepth 1 -maxdepth 1)" renpy-subdir
+        mv renpy-subdir/* renpy
+        rm -rf renpy-subdir
 
-      - name: Install MAS
-        if: steps.cache.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          cd "${{ github.action_path }}"
-          curl -L -o mas.zip https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
-          mkdir mas
-          bsdtar -xf mas.zip -C mas
+    - name: Install MAS
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        cd "${{ github.action_path }}"
+        curl -L -o mas.zip https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
+        mkdir mas
+        bsdtar -xf mas.zip -C mas
 
-          git clone --quiet --depth=1 https://github.com/monika-after-story/monikamoddev
-          cd monikamoddev
-          if [ "${{ inputs.mas-version }}" == latest ]; then
-            git -c advice.detachedHead=false checkout "${{ steps.mas-version-latest.outputs.tag }}"
-          else
-            git -c advice.detachedHead=falsecheckout "${{ inputs.mas-version }}"
-          fi
-          cp -Rf Monika\ After\ Story/* ../mas/
+        git clone --quiet --depth=1 https://github.com/monika-after-story/monikamoddev
+        cd monikamoddev
+        if [ "${{ inputs.mas-version }}" == latest ]; then
+          git -c advice.detachedHead=false checkout "${{ steps.mas-version-latest.outputs.tag }}"
+        else
+          git -c advice.detachedHead=falsecheckout "${{ inputs.mas-version }}"
+        fi
+        cp -Rf Monika\ After\ Story/* ../mas/
 
-      - name: Install submods
-        shell: bash
-        run: |
-          d="${{ github.action_path }}"
+    - name: Install submods
+      shell: bash
+      run: |
+        d="${{ github.action_path }}"
 
-          cp -r "$d/mas" "$d/mas1"
-          mkdir "$d/mas1/Submods"
+        cp -r "$d/mas" "$d/mas1"
+        mkdir "$d/mas1/Submods"
 
-          while IFS= read -r path; do
-            cp -r "$path" "$d/mas1/game/Submods"
-          done <<< "${{ inputs.paths }}"
+        while IFS= read -r path; do
+          cp -r "$path" "$d/mas1/game/Submods"
+        done <<< "${{ inputs.paths }}"
 
-      - name: Run checks
-        shell: bash
-        env:
-          SDL_AUDIODRIVER: dummy
-        run: |
-          cd "${{ github.action_path }}/renpy"
-          { ./renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."; } || true
+    - name: Run checks
+      shell: bash
+      env:
+        SDL_AUDIODRIVER: dummy
+      run: |
+        cd "${{ github.action_path }}/renpy"
+        { ./renpy.sh ../mas1 lint | grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."; } || true
 
-          if [ -f ../mas1/errors.txt ]; then
-            cat ../mas1/errors.txt
-          fi
+        if [ -f ../mas1/errors.txt ]; then
+          cat ../mas1/errors.txt
+        fi
 
-          if [ -f ../mas1/traceback.txt ]; then
-            cat ../mas1/traceback.txt
-          fi
+        if [ -f ../mas1/traceback.txt ]; then
+          cat ../mas1/traceback.txt
+        fi
 
-          if [ -f ../mas1/traceback.txt ] || [ -f ../mas1/errors.txt ]; then
-            exit 1
-          fi
+        if [ -f ../mas1/traceback.txt ] || [ -f ../mas1/errors.txt ]; then
+          exit 1
+        fi

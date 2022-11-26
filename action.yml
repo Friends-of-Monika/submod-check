@@ -87,6 +87,11 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
+        echo
+        echo "Installing Ren'Py SDK. It will be cached if this build succeedes,"
+        echo "next workflow runs will use cache and run faster."
+        echo
+
         cd "${{ github.action_path }}"
         renpy_url="${{ steps.renpy-url-nightly.outputs.url }}"
         if [ -z "$renpy_url" ]; then
@@ -103,6 +108,11 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
+        echo
+        echo "Installing MAS. It will be cached if this build succeedes,"
+        echo "next workflow runs will use cache and run faster."
+        echo
+
         cd "${{ github.action_path }}"
         curl -L -o mas.zip https://s3-us-west-2.amazonaws.com/monika-after-story/ddlc/mas.zip
         mkdir mas
@@ -134,8 +144,13 @@ runs:
       env:
         SDL_AUDIODRIVER: dummy
       run: |
+        echo
+        echo "Running Ren'Py lint and MAS init hooks. Pay attention to paths"
+        echo "in the warnings, not every warning is related to your submod."
+        echo
+
         cd "${{ github.action_path }}/renpy"
-        ./renpy.sh ../mas1 lint >/dev/null 2>&1 || true
+        ./renpy.sh ../mas1 lint || true
 
         if [ -f ../mas1/errors.txt ]; then
           cat ../mas1/errors.txt

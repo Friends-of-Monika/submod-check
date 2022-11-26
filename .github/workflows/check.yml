@@ -125,7 +125,7 @@ jobs:
     - name: Install submods
       shell: bash
       run: |
-        cp -r mas" mas1
+        cp -r mas mas1
         mkdir mas1/Submods
 
         while IFS= read -r path; do

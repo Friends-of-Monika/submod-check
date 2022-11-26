@@ -5,6 +5,7 @@ on:
     inputs:
       paths:
         description: List of paths (one per line) to add to MAS install to test.
+        type: string
         required: true
 
       mas-version:
@@ -12,6 +13,7 @@ on:
           Git tag of MAS release to be used during the check. Value of 'latest' can
           be passed, in this case workflow will try to retrieve the latest MAS
           release. By default, uses 'latest'.
+        type: string
         default: latest
 
       renpy-version:
@@ -19,6 +21,7 @@ on:
           Version of Ren'Py SDK to be used during the check. Value of 'nightly' can
           be passed, in this case workflow will try to retrieve the latest
           nightly Ren'Py build. By default, uses 6.99.12.4.
+        type: string
         default: 6.99.12.4
 
 jobs:

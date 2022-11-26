@@ -1,7 +1,4 @@
-name: Check MAS code with submods installed
-description: >-
-  Runs MAS, compiling and running init blocks in the submods passed to this
-  action in parameters.
+name: Check submods
 
 on:
   workflow_call:

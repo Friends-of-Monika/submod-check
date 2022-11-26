@@ -135,7 +135,7 @@ runs:
         SDL_AUDIODRIVER: dummy
       run: |
         cd "${{ github.action_path }}/renpy"
-        ./renpy.sh ../mas1 lint || true
+        { ./renpy.sh ../mas1 lint grep -E -v "^$|Could not find image \(monika [0-9][^[:space:]]+ corresponding to attributes on say statement\.|'monika [0-9][^[:space:]]+' is not an image\.|The image named 'monika [0-9][^[:space:]]+ was not declared\."; } || true
 
         if [ -f ../mas1/errors.txt ]; then
           cat ../mas1/errors.txt

@@ -118,7 +118,7 @@ jobs:
         if [ "${{ inputs.mas-version }}" == latest ]; then
           git -c advice.detachedHead=false checkout "${{ steps.mas-version-latest.outputs.tag }}"
         else
-          git -c advice.detachedHead=falsecheckout "${{ inputs.mas-version }}"
+          git -c advice.detachedHead=false checkout "${{ inputs.mas-version }}"
         fi
         cp -Rf Monika\ After\ Story/* ../mas/
 

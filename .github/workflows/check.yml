@@ -45,8 +45,7 @@ jobs:
       if: inputs.renpy-version == 'nightly'
       shell: bash
       run: |
-        curl https://nightly.renpy.org/current-8/index.html | grep -P -m 1 -o '(?<=href=").*\.tar\.bz2(?=".*)'
-        filename="$(curl -sLN https://nightly.renpy.org/current-8/index.html | grep -P -m 1 -o '(?<=href=").*\.tar\.bz2(?=".*)')"
+        filename="$(wget -qO https://nightly.renpy.org/current-8/index.html | grep -P -m 1 -o '(?<=href=").*\.tar\.bz2(?=".*)')"
         echo "url=https://nightly.renpy.org/current-8/$filename" >> $GITHUB_OUTPUT
 
     - name: Construct Ren'Py URL for stable releases

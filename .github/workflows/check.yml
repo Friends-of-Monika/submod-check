@@ -128,7 +128,8 @@ jobs:
       shell: bash
       run: |
         cp -r mas mas1
-        mkdir mas1/Submods
+        rm mas1/game/scripts.rpa
+        mkdir mas1/game/Submods
 
         while IFS= read -r path; do
           cp -r "$path" mas1/game/Submods

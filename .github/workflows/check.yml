@@ -16,6 +16,14 @@ on:
         type: string
         default: latest
 
+      delete-scripts-rpa:
+        description: >-
+          Whether or not to delete game/scripts.rpa file (which may be necessary
+          or not during the check process.) Set to false if check fails with
+          'missing DDLC archives' error. By default, uses false.
+        type: boolean
+        default: false
+
       renpy-version:
         description: >-
           Version of Ren'Py SDK to be used during the check. Value of 'nightly' can
@@ -128,7 +136,9 @@ jobs:
       shell: bash
       run: |
         cp -r mas mas1
-        rm mas1/game/scripts.rpa
+        if [ "${{ inputs.delete-scripts-rpa }}" = "true" ]; then
+          rm mas1/game/scripts.rpa
+        fi
         mkdir mas1/game/Submods
 
         while IFS= read -r path; do

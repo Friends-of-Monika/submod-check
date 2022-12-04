@@ -116,10 +116,12 @@ jobs:
         git clone --quiet --depth=1 https://github.com/monika-after-story/monikamoddev
         cd monikamoddev
         if [ "${{ inputs.mas-version }}" == latest ]; then
-          git -c advice.detachedHead=false checkout "${{ steps.mas-version-latest.outputs.tag }}"
+          ref="${{ steps.mas-version-latest.outputs.tag }}"
         else
-          git -c advice.detachedHead=false checkout "${{ inputs.mas-version }}"
+          ref="${{ inputs.mas-version }}"
         fi
+        git fetch "$ref"
+        git -c advice.detachedHead=false checkout FETCH_HEAD
         cp -Rf Monika\ After\ Story/* ../mas/
 
     - name: Install submods

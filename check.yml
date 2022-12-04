@@ -1,4 +1,4 @@
-name: Check submods
+name: Run submod checks
 
 on:
   workflow_call:

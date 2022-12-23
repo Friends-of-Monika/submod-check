@@ -18,8 +18,8 @@ and `init` block tests on every push.
      check:
        uses: friends-of-monika/submod-check/.github/workflows/check.yml@master
        with:
-       paths: |-
-         PATH_TO_YOUR_SUBMOD_DIRECTORY
+         paths: |-
+           PATH_TO_YOUR_SUBMOD_DIRECTORY
    ```
 
 2. Replace `PATH_TO_YOUR_SUBMOD_DIRECTORY` with a path (relative to repository
